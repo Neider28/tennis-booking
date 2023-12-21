@@ -9,19 +9,38 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aldabil/react-scheduler": "^2.7.26",
+    "@ant-design/cssinjs": "^1.18.1",
+    "@ant-design/icons": "^5.2.6",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.20",
+    "@react-oauth/google": "^0.12.1",
+    "@stripe/react-stripe-js": "^2.4.0",
+    "@stripe/stripe-js": "^2.2.1",
+    "antd": "^5.12.1",
+    "antd-img-crop": "^4.18.0",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.0.4",
+    "next-auth": "^4.24.5",
     "react": "^18",
+    "react-avatar-editor": "^13.0.1",
     "react-dom": "^18",
-    "next": "14.0.4"
+    "react-highlight-words": "^0.20.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/js-cookie": "^3.0.6",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-highlight-words": "^0.16.7",
     "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4"
+    "typescript": "^5"
   }
 }

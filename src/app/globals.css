@@ -3,25 +3,85 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background: #000411;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+html, body {
+  overflow-x: hidden;
+  width: 100% !important;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: var(--background);
+  padding-right: 0px !important;
+}
+
+input {
+  outline: none;
+}
+
+input::placeholder {
+  color: #E1EFE6;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-list .ant-list-item .ant-list-item-action {
+  margin-inline-start: 0px;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-description {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-list-vertical .ant-list-item .ant-list-item-meta .ant-list-item-meta-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-list .ant-list-item .ant-list-item-action {
+  display: flex;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-table-wrapper .ant-table-filter-trigger {
+  color: #EFCB68;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-table-wrapper .ant-table-filter-trigger:hover {
+  color: #E1EFE6;
+}
+
+:where(.css-dev-only-do-not-override-167hu3y).ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload.ant-upload-select >.ant-upload, :where(.css-dev-only-do-not-override-167hu3y).ant-upload-wrapper.ant-upload-picture-circle-wrapper .ant-upload.ant-upload-select >.ant-upload {
+  color: #EFCB68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-primary:disabled, :where(.css-dev-only-do-not-override-15uh9l0).ant-btn-primary.ant-btn-disabled {
+  cursor: not-allowed;
+  border-color: #EFCB68;
+  color: #FFF;
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: none;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn.ant-btn-sm {
+  background-color: #EFCB68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-modal .ant-modal-footer .ant-btn+.ant-btn:not(.ant-dropdown-trigger) {
+  background-color: #EFCB68;
+  color: #FFF;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-primary {
+  color: #fff;
+  background: #efcb68 !important;
+  box-shadow: 0 2px 0 rgba(255, 222, 5, 0.06);
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-primary.ant-btn-background-ghost {
+  color: #efcb68;
+  background: transparent !important;
+  border-color: #efcb68;
+  box-shadow: none;
 }
