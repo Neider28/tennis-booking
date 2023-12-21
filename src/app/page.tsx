@@ -96,7 +96,7 @@ export default function Home() {
           </div>
           {isAuthenticated && (
             <div className='mt-4 flex justify-center flex-col md:flex-row w-full md:w-3/4 lg:w-[48rem]'>
-              <Link href="/sign-up/company">
+              <Link href="/sign-up/company" className='text-center'>
                 <span className='text-naples-yellow font-medium underline'>Register as a company</span>
               </Link>
             </div>
