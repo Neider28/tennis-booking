@@ -85,3 +85,34 @@ input::placeholder {
   border-color: #efcb68;
   box-shadow: none;
 }
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-table-wrapper .ant-table-filter-trigger {
+  color: #efcb68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-table-wrapper .ant-table-filter-trigger:hover {
+  color: #efcb68;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+  color: #FFF;
+  border-color: #FFD639;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn.ant-btn-sm {
+  color: #FFF;
+  background-color: #EFCB68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-link:not(:disabled):not(.ant-btn-disabled):hover {
+  color: #FFF;
+  background-color: #EFCB68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-btn-primary.ant-btn-background-ghost {
+  color: #efcb68 !important;
+  background: transparent !important;
+  border-color: #efcb68;
+  box-shadow: none;
+}

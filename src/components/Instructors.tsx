@@ -3,53 +3,32 @@ import theme from '@/theme/themeConfig'
 import { DeleteOutlined, EditOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, ConfigProvider, Input, InputRef, Space, Table } from 'antd'
 import Highlighter from 'react-highlight-words';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ColumnType, ColumnsType, FilterConfirmProps } from 'antd/es/table/interface';
 import AddInstructor from './AddInstructor';
-
+import { FindAllInstructors } from '@/services/Instructor';
+import { useMyContext } from '@/context/MainContext';
+import { getTokenCookie } from '@/utils/cookie.util';
+import UpdateInstructor from './UpdateInstructor';
+import DeleteInstructor from './DeleteInstructor';
+import Link from 'next/link';
 
 interface DataType {
   key: React.Key;
   firstName: string;
   lastName: string;
-  age: number;
+  phone: string;
   address: string;
   email: string;
 }
 
 type DataIndex = keyof DataType;
 
-const data: DataType[] = [
-  {
-    key: '1',
-    firstName: 'John',
-    lastName: 'Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    email: 'jbrown@email.com',
-  },
-  {
-    key: '2',
-    firstName: 'Jim',
-    lastName: 'Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    email: 'jgreen@email.com',
-  },
-  {
-    key: '3',
-    firstName: 'Joe',
-    lastName: 'Black',
-    age: 24,
-    address: 'Sydney No. 1 Lake Park',
-    email: 'jblack@email.com',
-  },
-];
-
 export default function Instructors() {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
+  const { instructors, setInstructors } = useMyContext();
 
   const handleSearch = (
     selectedKeys: string[],
@@ -65,6 +44,33 @@ export default function Instructors() {
     clearFilters();
     setSearchText('');
   };
+
+  useEffect(() => {
+    try {
+      const instructors = async (token: string) => {
+        const data = await FindAllInstructors(token);
+
+        setInstructors(data.map((item: any) => {
+          return {
+            key: item._id,
+            firstName: item.firstName,
+            lastName: item.lastName,
+            phone: item.phone,
+            email: item.user.email,
+            address: item.address,
+          }
+        }));
+      };
+
+      const token = getTokenCookie();
+
+      if(token) {
+        instructors(token);
+      }
+    } catch (error) {
+      
+    }
+  }, []);
 
   const getColumnSearchProps = (dataIndex: DataIndex, name: string): ColumnType<DataType> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
@@ -151,9 +157,9 @@ export default function Instructors() {
       ...getColumnSearchProps('lastName', 'Last Name'),
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
       ellipsis: true,
     },
     {
@@ -174,12 +180,14 @@ export default function Instructors() {
       key: 'action',
       ellipsis: true,
       fixed: 'right',
-      width: 125,
-      render: (_: any) => (
+      width: 150,
+      render: (_: any, record: DataType) => (
         <Space size="middle">
-          <a className='text-rich-black hover:text-naples-yellow'><EyeOutlined /></a>
-          <a className='text-rich-black hover:text-naples-yellow'><EditOutlined /></a>
-          <a className='text-rich-black hover:text-naples-yellow'><DeleteOutlined /></a>
+          <Link href={`/instructor/${record.key}`}>
+            <EyeOutlined />
+          </Link>
+          <UpdateInstructor id={record.key.toString()} />
+          <DeleteInstructor id={record.key.toString()} firstName={record.firstName} lastName={record.lastName} />
         </Space>
       ),
     },
@@ -188,7 +196,7 @@ export default function Instructors() {
   return (
     <ConfigProvider theme={theme}>
       <AddInstructor />
-      <Table dataSource={data} columns={columns}>
+      <Table dataSource={instructors} columns={columns}>
         
       </Table>
     </ConfigProvider>

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Button, Form, Input, Modal } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { getTokenCookie } from '@/utils/cookie.util';
-import { CreateInstructor } from '@/services/Instructor';
 import { useMyContext } from '@/context/MainContext';
+import { EditOutlined } from '@ant-design/icons';
+import { EditInstructor } from '@/services/Instructor';
 
-const AddInstructor: React.FC = () => {
+const UpdateInstructor: React.FC<{id: string}> = ({ id }) => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { instructors, setInstructors } = useMyContext();
@@ -14,35 +15,29 @@ const AddInstructor: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const onCreate = async (values: any) => {
-    const instructor = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      bio: values.bio,
-      phone: values.phone,
-      address: values.address,
-      user: {
-        email: values.email,
-        password: `${values.firstName}@${values.lastName}:123`,
-      },
+  const onCreate = async (values: any, id: string) => {
+    const removeEmptyValues = (obj: any): any => {
+      return Object.fromEntries(
+        Object.entries(obj).filter(([_, value]) => value !== undefined),
+      );
     };
+
+    const instructor = removeEmptyValues(values);
 
     try {
       const token = getTokenCookie();
 
       if (token) {
-        const data = await CreateInstructor(token, instructor);
+        const data = await EditInstructor(token, id, instructor);
 
         if (data) {
           setIsModalOpen(false);
-          setInstructors([...instructors, {
-            key: data._id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phone: data.phone,
-            address: data.address,
-            email: data.user.email,
-          }]);
+          setInstructors(instructors.map((item: any) => {
+            if (item.key === id) {
+              return { ...item, ...instructor };
+            }
+            return item;
+          }));
         } else {
 
         }
@@ -59,18 +54,18 @@ const AddInstructor: React.FC = () => {
 
   return (
     <>
-      <Button type="primary" className='bg-naples-yellow mb-6' onClick={showModal}>
-        Add new instructor
+      <Button type="primary" ghost className='bg-transparent' onClick={showModal} icon={<EditOutlined />}>
+
       </Button>
       <Modal
-        title="Add new instructor"
+        title="Edit instructor"
         open={isModalOpen}
         onOk={() => {
           form
             .validateFields()
             .then((values) => {
               form.resetFields();
-              onCreate(values);
+              onCreate(values, id);
             })
             .catch((info) => {
               console.log('Validate Failed:', info);
@@ -87,37 +82,31 @@ const AddInstructor: React.FC = () => {
         >
           <Form.Item
             name="firstName"
-            rules={[{ required: true, message: 'Please enter first name!' }, { type: 'string', min: 3 }]}
+            rules={[{ type: 'string', min: 3 }]}
           >
             <Input placeholder="First Name" />
           </Form.Item>
           <Form.Item
             name="lastName"
-            rules={[{ required: true, message: 'Please enter last name!' }, { type: 'string', min: 3 }]}
+            rules={[{ type: 'string', min: 3 }]}
           >
             <Input placeholder="Last Name" />
           </Form.Item>
           <Form.Item
-            name="email"
-            rules={[{ required: true, message: 'Please enter email!' }, { type: 'email' }]}
-          >
-            <Input placeholder="Email" />
-          </Form.Item>
-          <Form.Item
             name="bio"
-            rules={[{ required: true, message: 'Please enter bio!' }, { type: 'string', min: 50 }]}
+            rules={[{ type: 'string', min: 50 }]}
           >
             <TextArea placeholder="Bio" />
           </Form.Item>
           <Form.Item
             name="phone"
-            rules={[{ required: true, message: 'Please enter phone!' }, { type: 'string', min: 10 }]}
+            rules={[{ type: 'string', min: 10 }]}
           >
             <Input placeholder="Phone" />
           </Form.Item>
           <Form.Item
             name="address"
-            rules={[{ required: true, message: 'Please enter address!' }, { type: 'string', min: 20 }]}
+            rules={[{ type: 'string', min: 20 }]}
           >
             <Input placeholder="Address" />
           </Form.Item>
@@ -127,4 +116,4 @@ const AddInstructor: React.FC = () => {
   );
 };
 
-export default AddInstructor;
+export default UpdateInstructor;

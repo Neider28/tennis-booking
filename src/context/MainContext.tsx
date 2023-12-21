@@ -5,6 +5,8 @@ import React, { useContext, createContext, useState} from "react";
 type ContextType = {
   schedules: any[],
   setSchedules: React.Dispatch<React.SetStateAction<any[]>>,
+  instructors: any[],
+  setInstructors: React.Dispatch<React.SetStateAction<any[]>>,
   scheduleDetail: any,
   setScheduleDetail: React.Dispatch<React.SetStateAction<any>>,
   profile: any,
@@ -26,6 +28,7 @@ export interface ContextProps {
 
 export function MainContext({ children }: ContextProps) {
   const [schedules, setSchedules] = useState<Event[]>([]);
+  const [instructors, setInstructors] = useState<any[]>([]);
   const [scheduleDetail, setScheduleDetail] = useState<any>(null);
   const [profile, setProfile] = useState<ProfileI>();
 
@@ -33,6 +36,8 @@ export function MainContext({ children }: ContextProps) {
     <MyContext.Provider value={{
       schedules,
       setSchedules,
+      instructors,
+      setInstructors,
       scheduleDetail,
       setScheduleDetail,
       profile,
