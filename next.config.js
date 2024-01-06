@@ -13,8 +13,8 @@ const nextConfig = {
     ],
   },
   env: {
-    API_PROD: 'http://localhost:4000'
-  }
-}
+    API_PROD: 'http://localhost:4000',
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

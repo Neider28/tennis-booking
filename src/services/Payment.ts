@@ -16,4 +16,4 @@ export const CreatePayment = async (body: any) => {
   } catch (error) {
     throw error;
   }
-}
+};

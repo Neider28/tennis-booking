@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTokenCookie } from "@/utils/cookie.util";
@@ -20,12 +20,12 @@ const IsAdmin: React.FC<Props> = ({ children }) => {
       if (token) {
         const role = await checkUserRole(token);
   
-        if (role === 'company') {
+        if (role === "company") {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
           setTimeout(() => {
-            router.push('/dashboard');
+            router.push("/dashboard");
           }, 1000);
         }
       }

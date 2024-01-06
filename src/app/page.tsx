@@ -1,54 +1,50 @@
-'use client'
-import theme from '@/theme/themeConfig'
-import { Button, Carousel, ConfigProvider } from 'antd'
-import Image from 'next/image'
-import image1 from '../../public/images/pexels-matthew-turner-2568551.jpg'
-import image2 from '../../public/images/pexels-anna-shvets-5069176.jpg'
-import image3 from '../../public/images/pexels-isabella-mendes-342361.jpg'
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { getTokenCookie } from '@/utils/cookie.util'
-import { useMyContext } from '@/context/MainContext'
-import { MyProfile } from '@/services/Auth'
+"use client"
+import { useEffect, useState } from "react";
+import theme from "@/theme/themeConfig";
+import { Button, Carousel, ConfigProvider } from "antd";
+import Image from "next/image";
+import Link from "next/link";
+import image1 from "../../public/images/pexels-matthew-turner-2568551.jpg";
+import image2 from "../../public/images/pexels-anna-shvets-5069176.jpg";
+import image3 from "../../public/images/pexels-isabella-mendes-342361.jpg";
+import { getTokenCookie } from "@/utils/cookie.util";
+import { useMyContext } from "@/context/MainContext";
+import { MyProfile } from "@/services/Auth";
+import { StudentI } from "@/interfaces/student.interface";
+import { CompanyI } from "@/interfaces/company.interface";
+import { InstructorI } from "@/interfaces/instructor.interface";
 
-const contentStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100vh',
-  objectFit: 'cover',
-}
+const imageStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100vh",
+  objectFit: "cover",
+};
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const { profile, setProfile } = useMyContext();
 
   useEffect(() => {
-    document.title = 'Tennis Booking';
+    document.title = "Tennis Booking";
 
-    const token = getTokenCookie();
+    const fetchProfile = async () => {
+      try {
+        const token = getTokenCookie();
 
-    if (token) {
-      setIsAuthenticated(false);
-    } else {
-      setIsAuthenticated(true);
-    }
-
-    try {
-      const profile = async (token: string) => {
-        const data = await MyProfile(token);
+        if (token) {
+          setIsAuthenticated(false);
+          const data: StudentI | CompanyI | InstructorI = await MyProfile(token);
         
-        setProfile(data);
-
-        return data;
-      };
-
-      const token = getTokenCookie();
-
-      if(token) {
-        profile(token);
+          setProfile(data);
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        setIsAuthenticated(true);
       }
-    } catch (error) {
-      
-    }
+    };
+
+    fetchProfile();
   }, []);
 
   return (
@@ -56,13 +52,13 @@ export default function Home() {
       <main className="App w-full h-screen relative">
         <Carousel autoplay className="w-full h-screen">
           <div>
-            <Image src={image1} alt='Image 1' style={contentStyle} />
+            <Image src={image1} alt='Image 1' style={imageStyle} />
           </div>
           <div>
-            <Image src={image2} alt='Image 2' style={contentStyle} />
+            <Image src={image2} alt='Image 2' style={imageStyle} />
           </div>
           <div>
-            <Image src={image3} alt='Image 3' style={contentStyle} />
+            <Image src={image3} alt='Image 3' style={imageStyle} />
           </div>
         </Carousel>
         <div className='p-2 flex flex-col justify-center items-center absolute w-full h-screen top-0 left-0 bg-opacity-60 bg-rich-black'>
@@ -104,5 +100,5 @@ export default function Home() {
         </div>
       </main>
     </ConfigProvider>
-  )
-}
+  );
+};

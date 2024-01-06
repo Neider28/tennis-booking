@@ -1,4 +1,7 @@
-export const CreateInstructor = async (token: string, instructor: any) => {
+import { AvailabilityI } from "@/interfaces/availability.interface";
+import { CreateInstructorI, InstructorI, UpdateInstructorI } from "@/interfaces/instructor.interface";
+
+export const CreateInstructor = async (token: string, instructor: CreateInstructorI): Promise<InstructorI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/instructor`, {
       method: 'POST',
@@ -17,9 +20,30 @@ export const CreateInstructor = async (token: string, instructor: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const EditInstructor = async (token: string, id: string, instructor: any) => {
+export const AddAvailabilityToInstructor = async (token: string, id: string, availability: AvailabilityI): Promise<InstructorI> => {
+  try {
+    const response = await fetch(`${process.env.API_PROD}/instructor/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(availability),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const EditInstructor = async (token: string, id: string, instructor: UpdateInstructorI): Promise<InstructorI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/instructor/${id}`, {
       method: 'PUT',
@@ -38,9 +62,9 @@ export const EditInstructor = async (token: string, id: string, instructor: any)
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const FindAllInstructors = async (token: string) => {
+export const FindAllInstructors = async (token: string): Promise<InstructorI[]> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/instructor`, {
       method: 'GET',
@@ -58,9 +82,9 @@ export const FindAllInstructors = async (token: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const FindOneInstructor = async (token: string, id: string) => {
+export const FindOneInstructor = async (token: string, id: string): Promise<InstructorI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/instructor/${id}`, {
       method: 'GET',
@@ -78,7 +102,7 @@ export const FindOneInstructor = async (token: string, id: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const RemoveInstructor = async (token: string, id: string) => {
   try {
@@ -98,4 +122,4 @@ export const RemoveInstructor = async (token: string, id: string) => {
   } catch (error) {
     throw error;
   }
-}
+};

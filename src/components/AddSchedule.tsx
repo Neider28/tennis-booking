@@ -1,34 +1,41 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, Modal, DatePicker, Select, InputNumber, SelectProps, message, Alert, Space } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
-import { CreateSchedule } from '@/services/Schedule';
-import { getTokenCookie } from '@/utils/cookie.util';
-import { useMyContext } from '@/context/MainContext';
+import React, { useEffect, useState } from "react";
+import { Button, Form, Modal, DatePicker, Select, message } from "antd";
+import { CreateSchedule } from "@/services/Schedule";
+import { getTokenCookie } from "@/utils/cookie.util";
+import { MyProfile } from "@/services/Auth";
+import { FindOneCompany } from "@/services/Company";
+import { AvailabilityI } from "@/interfaces/availability.interface";
+import { useMyContext } from "@/context/MainContext";
+import { CompanyI } from "@/interfaces/company.interface";
 
 const { RangePicker } = DatePicker;
+
 const rangeConfig = {
-  rules: [{ type: 'array' as const, required: true, message: 'Please select date!' }],
+  rules: [
+    {
+      type: "array" as const,
+      required: true,
+      message: "Please select date!",
+    },
+  ],
 };
 
-const AddSchedule: React.FC = () => {
+const filterOption = (input: string, option?: { label: string; value: string }) =>
+  (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+
+export default function AddSchedule() {
+  const { setSchedules } = useMyContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
-  const { schedules, setSchedules } = useMyContext();
+  const [classes, setClasses] = useState<any[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const options: SelectProps['options'] = [
-    {
-      value: 'beginner',
-      label: 'Beginner',
-    },
-    {
-      value: 'intermediate',
-      label: 'Intermediate',
-    },
-    {
-      value: 'advanced',
-      label: 'Advanced',
-    },
-  ];
+  const warning = () => {
+    messageApi.open({
+      type: "warning",
+      content: "Internal error.",
+    });
+  };
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -36,124 +43,117 @@ const AddSchedule: React.FC = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    form.resetFields();
   };
 
   const onCreate = async (values: any) => {
-    const schedule = {
-      title: values.title,
-      description: values.description,
-      startDate: new Date(values.fullDate[0].$d),
-      endDate: new Date(values.fullDate[1].$d),
-      skillLevel: values.skillLevel,
-      cost: values.cost,
-      participants: values.participants,
+    const scheduleBody: AvailabilityI = {
+      startDate: new Date(values.fullDate[0].$d).setSeconds(0, 0),
+      endDate: new Date(values.fullDate[1].$d).setSeconds(0, 0),
     };
-
+    
     try {
       const token = getTokenCookie();
 
       if (token) {
-        const data = await CreateSchedule(token, schedule);
+        const res: CompanyI = await CreateSchedule(token, values.class, scheduleBody);
 
-        if (data) {
+        if (res) {
+          setSchedules(res.classes.flatMap((item1: any) => {
+            return item1.schedules.map((item2: any) => {
+              return {
+                event_id: item2._id,
+                title: item1.title,
+                start: new Date(item2.startDate),
+                end: new Date(item2.endDate),
+              };
+            });
+          }));
+
           setIsModalOpen(false);
-          setSchedules([...schedules, {
-            event_id: data._id,
-            title: data.title,
-            start: new Date(data.startDate),
-            end: new Date(data.endDate),
-          }])
-        } else {
-
         }
-      }      
+      }
     } catch (error) {
-      setTimeout(() => {
-      }, 2000);
+      warning();
     }
   };
 
-  return (
-    <>
-      <Button type="primary" className='bg-naples-yellow mb-6' onClick={showModal}>
-        Add new class
-      </Button>
-      <Modal
-        title="Add new class"
-        open={isModalOpen}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              form.resetFields();
-              onCreate(values);
-            })
-            .catch((info) => {
-              console.log('Validate Failed:', info);
-            });
-        }}
-        maskClosable={false}
-        centered={true}
-        onCancel={handleCancel}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          autoComplete="off"
-        >
-          <Form.Item
-            name="title"
-            rules={[{ required: true, message: 'Please enter title!' }, { type: 'string', min: 10 }]}
-          >
-            <Input placeholder="Title" />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            rules={[{ required: true, message: 'Please enter description!' }, { type: 'string', min: 50 }]}
-          >
-            <TextArea
-              placeholder="Description"
-            />
-          </Form.Item>
-          <Form.Item
-            name="skillLevel"
-            rules={[{ required: true, message: 'Please select skill level!' }]}
-          >
-            <Select
-              optionFilterProp="children"
-              placeholder='Skill level'
-              options={options}
-            />
-          </Form.Item>
-          <Form.Item
-            name="cost"
-            rules={[{ required: true, message: 'Please enter cost!' }, { type: 'number' }]}
-          >
-            <InputNumber
-              className='w-full'
-              placeholder='Cost'
-              formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value: string | undefined) => value!.replace(/\$\s?|(,*)/g, '')}
-            />
-          </Form.Item>
-          <Form.Item
-            name="participants"
-            rules={[{ required: true, message: 'Please enter number of participants!' }, { type: 'number' }]}
-          >
-            <InputNumber
-              className='w-full'
-              placeholder='Participants (0-10)'
-              min={1}
-              max={10}
-            />
-          </Form.Item>
-          <Form.Item name="fullDate" {...rangeConfig}>
-            <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
-  );
-};
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const token = getTokenCookie();
 
-export default AddSchedule;
+        if(token) {
+          const profile = await MyProfile(token);
+          const res = await FindOneCompany(token, profile._id);
+          setClasses(res.classes.map((item: any) => {
+            return {
+              value: item._id,
+              label: item.title,
+            }
+          }));
+        }
+      } catch (error) {
+        warning();
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  return (<>
+    <Button
+      type="primary"
+      className="bg-naples-yellow mb-6"
+      onClick={showModal}
+    >
+      Add new schedule
+    </Button>
+    <Modal
+      title="Add new schedule"
+      open={isModalOpen}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      maskClosable={false}
+      centered={true}
+      onCancel={handleCancel}
+    >
+      {contextHolder}
+      <Form
+        form={form}
+        layout="vertical"
+        autoComplete="off"
+      >
+        <Form.Item
+          name="class"
+          rules={[
+            {
+              required: true,
+              message: "Please select a class!",
+            },
+          ]}
+        >
+          <Select
+            showSearch
+            placeholder="Select a class"
+            optionFilterProp="children"
+            filterOption={filterOption}
+            options={classes}
+          />
+        </Form.Item>
+        <Form.Item name="fullDate" {...rangeConfig}>
+          <RangePicker className="w-full" showTime format="YYYY-MM-DD HH:mm" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  </>);
+};

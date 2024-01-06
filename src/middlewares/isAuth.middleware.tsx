@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTokenCookie } from "@/utils/cookie.util";
@@ -20,7 +20,7 @@ const IsAuth: React.FC<Props> = ({ children }) => {
         if (token) {
           setIsAuthenticated(true);
           setTimeout(() => {
-            router.push('/');
+            router.push("/");
           }, 1000);
         } else {
           setIsAuthenticated(false);

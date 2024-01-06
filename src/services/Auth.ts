@@ -1,4 +1,10 @@
-export const SignUpStudent = async (student: any) => {
+import { CompanyI, SignUpCompanyI, UpdateCompanyI } from "@/interfaces/company.interface";
+import { InstructorI } from "@/interfaces/instructor.interface";
+import { SignUpStudentI, StudentI, UpdateStudentI } from "@/interfaces/student.interface";
+import { TokenI } from "@/interfaces/token.interface";
+import { SignInUserI } from "@/interfaces/user.interface";
+
+export const SignUpStudent = async (student: SignUpStudentI): Promise<StudentI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/sign-up/student`, {
       method: 'POST',
@@ -16,9 +22,9 @@ export const SignUpStudent = async (student: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const SignUpCompany = async (company: any) => {
+export const SignUpCompany = async (company: SignUpCompanyI): Promise<CompanyI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/sign-up/company`, {
       method: 'POST',
@@ -36,7 +42,7 @@ export const SignUpCompany = async (company: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const SignUpGoogleAuth = async (credentials: any) => {
   try {
@@ -56,9 +62,9 @@ export const SignUpGoogleAuth = async (credentials: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const SignInAuth = async (user: any) => {
+export const SignInAuth = async (user: SignInUserI): Promise<TokenI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/sign-in`, {
       method: 'POST',
@@ -76,7 +82,7 @@ export const SignInAuth = async (user: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 export const SignInGoogleAuth = async (credentials: any) => {
   try {
@@ -96,11 +102,11 @@ export const SignInGoogleAuth = async (credentials: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const VerifyUser = async (email: string | string[] | undefined, code: number) => {
+export const VerifyUser = async (token: string): Promise<TokenI> => {
   try {
-    const response = await fetch(`${process.env.API_PROD}/auth/verify/${email}/${code}`, {
+    const response = await fetch(`${process.env.API_PROD}/auth/verify/${token}`, {
       method: 'POST',
     });
 
@@ -112,9 +118,9 @@ export const VerifyUser = async (email: string | string[] | undefined, code: num
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const MyProfile = async (token: String | undefined) => {
+export const MyProfile = async (token: String): Promise<StudentI | CompanyI | InstructorI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/profile`, {
       method: 'GET',
@@ -132,9 +138,9 @@ export const MyProfile = async (token: String | undefined) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const EditProfile = async (token: String | undefined, body: any) => {
+export const EditProfileStudent = async (token: String, body: UpdateStudentI): Promise<StudentI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/profile/edit/student`, {
       method: 'PUT',
@@ -153,9 +159,9 @@ export const EditProfile = async (token: String | undefined, body: any) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-export const EditProfileCompany = async (token: String | undefined, body: any) => {
+export const EditProfileCompany = async (token: String, body: UpdateCompanyI): Promise<CompanyI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/profile/edit/company`, {
       method: 'PUT',
@@ -174,4 +180,4 @@ export const EditProfileCompany = async (token: String | undefined, body: any) =
   } catch (error) {
     throw error;
   }
-}
+};

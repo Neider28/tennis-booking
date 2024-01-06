@@ -1,16 +1,16 @@
-import React from 'react';
-import { Button, Modal } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
-import { getTokenCookie } from '@/utils/cookie.util';
-import { RemoveInstructor } from '@/services/Instructor';
-import { useMyContext } from '@/context/MainContext';
+import React from "react";
+import { Button, Modal } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { getTokenCookie } from "@/utils/cookie.util";
+import { RemoveInstructor } from "@/services/Instructor";
+import { useMyContext } from "@/context/MainContext";
 
-const DeleteInstructor: React.FC<{id: string, firstName: string, lastName: string}> = ({ id, firstName, lastName }) => {
+export default function DeleteInstructor({ id, firstName, lastName } : { id: string, firstName: string, lastName: string }) {
   const [modal, contextHolder] = Modal.useModal();
-  const { instructors, setInstructors } = useMyContext();
+  const { instructorsTable, setInstructorsTable } = useMyContext();
 
   const config = {
-    title: 'Delete Instructor!',
+    title: "Delete Instructor!",
     content: (
       <>
         <p>Are you sure to eliminate instructor {firstName} {lastName}?</p>
@@ -20,44 +20,34 @@ const DeleteInstructor: React.FC<{id: string, firstName: string, lastName: strin
     centered: true,
   };
 
-  const deleteHandle = async (id: string) => {
-    try {
-      const token = getTokenCookie();
+  const OnDelete = async (id: string) => {
+    const token = getTokenCookie();
 
-      if (token) {
-        const data = await RemoveInstructor(token, id);
+    if (token) {
+      const res = await RemoveInstructor(token, id);
 
-        if (data) {
-          setInstructors(instructors.filter((item: any) => item.key !== id))
-        } else {
-
-        }
-      }  
-    } catch (error) {
-      setTimeout(() => {
-      }, 2000);
+      if (res) {
+        setInstructorsTable(instructorsTable.filter((item: any) => item.key !== id));
+      }
     }
   };
 
-  return (
-    <>
-      <Button
+  return (<>
+    {contextHolder}
+    <Button
       type="primary"
       ghost
-      className='bg-transparent'
-        onClick={async () => {
+      className="bg-transparent"
+      onClick={
+        async () => {
           const confirmed = await modal.confirm(config);
 
           if (confirmed) {
-            deleteHandle(id);
+            OnDelete(id);
           }
-        }}
-        icon={<DeleteOutlined />}
-      >
-      </Button>
-      {contextHolder}
-    </>
-  );
+        }
+      }
+      icon={<DeleteOutlined />}
+    />
+  </>);
 };
-
-export default DeleteInstructor;

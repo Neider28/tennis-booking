@@ -1,84 +1,71 @@
-'use client'
-import Header from '@/components/Header'
-import theme from '@/theme/themeConfig'
-import { ConfigProvider } from 'antd'
-import Image from 'next/image'
-import IsNotAuth from '@/middlewares/isNotAuth.middleware'
-import { useEffect, useState } from 'react'
-import { MyProfile } from '@/services/Auth'
-import { getTokenCookie } from '@/utils/cookie.util'
-import { ProfileI } from '@/interfaces/user'
-import { useMyContext } from '@/context/MainContext'
-
-const contentStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  borderRadius: '8px',
-}
-
-const profileStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  borderRadius: '100%',
-  border: '4px solid #000411'
-}
+"use client"
+import { useEffect, useState } from "react";
+import Header from "@/components/Header";
+import theme from "@/theme/themeConfig";
+import { ConfigProvider } from "antd";
+import IsNotAuth from "@/middlewares/isNotAuth.middleware";
+import { MyProfile } from "@/services/Auth";
+import { getTokenCookie } from "@/utils/cookie.util";
+import { useMyContext } from "@/context/MainContext";
+import ProfileCover from "@/components/ProfileCover";
+import { StudentI } from "@/interfaces/student.interface";
+import { CompanyI } from "@/interfaces/company.interface";
+import { InstructorI } from "@/interfaces/instructor.interface";
+import NotFound from "@/components/NotFound";
 
 export default function Profile() {
   const { profile, setProfile } = useMyContext();
+  const [error, setError] = useState<boolean | null>(null);
 
   useEffect(() => {
-    document.title = 'My Profile';
+    const fetchProfile = async () => {
+      try {
+        const token = getTokenCookie();
 
-    try {
-      const profile = async (token: string) => {
-        const data = await MyProfile(token);
+        if (token) {
+          const res: StudentI | CompanyI | InstructorI = await MyProfile(token);
         
-        setProfile(data);
+          document.title = `My Profile | ${'name' in res ? `${res?.name}` : `${res?.firstName} ${res?.lastName}`}`;
 
-        return data;
-      };
-
-      const token = getTokenCookie();
-
-      if(token) {
-        profile(token);
+          setProfile(res);
+        }
+      } catch (error) {
+        setError(true);
       }
-    } catch (error) {
-      
-    }
+    };
+
+    fetchProfile();
   }, []);
 
   return (
     <IsNotAuth>
       <ConfigProvider theme={theme}>
         <Header />
-        <main className='w-full h-auto p-2 mt-8 flex justify-center'>
-          {profile && (
-            <div className='w-full sm:w-9/12 lg:w-[60rem] relative mb-28'>
-              <div className='w-full h-40 lg:h-56'>
-                <Image src={profile.banner} alt='Banner' style={contentStyle} width={500} height={500} priority />
+        <main className="w-full h-auto p-2 mt-8 flex justify-center">
+          {(profile && !error) && (
+            <div className="w-full sm:w-9/12 lg:w-[60rem] relative mb-28">
+              <ProfileCover banner={profile.banner} image={'profileImage' in profile ? profile.profileImage : profile.logo} />
+              <div className="w-full mt-14 lg:mt-24">
+                <h2 className="text-3xl font-semibold text-honeydew capitalize">{'name' in profile ? profile.name : `${profile.firstName} ${profile.lastName}`}</h2>
+                <span className="text-base lg:text-lg font-medium text-naples-yellow capitalize">{profile.user.role}</span>
               </div>
-              <div className='absolute top-[5rem] left-[1rem] w-28 h-28 lg:w-40 lg:h-40 lg:top-[8rem] lg:left-[2rem]'>
-                <Image src={profile.profileImage || profile.logo} alt='Profile' style={profileStyle} width={500} height={250} />
+              <div className="w-full mt-10">
+                <span className="text-base font-semibold text-honeydew">Email</span>
+                <p className="text-base font-normal text-honeydew mb-6">{profile.user.email}</p>
+                <span className="text-base font-semibold text-honeydew">Phone number</span>
+                <p className="text-base font-normal text-honeydew mb-6">{'phone' in profile ? profile.phone : "None"}</p>
+                <span className="text-base font-semibold text-honeydew">Address</span>
+                <p className="text-base font-normal text-honeydew">{'address' in profile ? profile.address : "None"}</p>
               </div>
-              <div className='w-full mt-14 lg:mt-24'>
-                <h2 className='text-3xl font-semibold text-honeydew capitalize'>{profile?.name ? `${profile?.name}` : `${profile?.firstName} ${profile?.lastName}`}</h2>
-                <span className='text-base lg:text-lg font-medium text-naples-yellow capitalize'>{profile.user.role}</span>
-              </div>
-              <div className='w-full mt-10'>
-                <span className='text-base font-semibold text-honeydew'>Email</span>
-                <p className='text-base font-normal text-honeydew mb-6'>{profile?.user?.email}</p>
-                <span className='text-base font-semibold text-honeydew'>Phone number</span>
-                <p className='text-base font-normal text-honeydew mb-6'>{profile?.phone || 'None'}</p>
-                <span className='text-base font-semibold text-honeydew'>Address</span>
-                <p className='text-base font-normal text-honeydew'>{profile?.address || 'None'}</p>
-              </div>
+            </div>
+          )}
+          {error && (
+            <div className='h-fit w-full sm:w-9/12 lg:w-[60rem] pb-20'>
+              <NotFound />
             </div>
           )}
         </main>
       </ConfigProvider>
     </IsNotAuth>
-  )
-}
+  );
+};

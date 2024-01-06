@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const checkUserRole = async (token: string) => {
   const decoded = jwt.decode(token) as JwtPayload;

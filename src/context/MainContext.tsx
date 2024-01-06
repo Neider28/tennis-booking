@@ -1,24 +1,27 @@
-'use client'
-import { ProfileI } from "@/interfaces/user";
+"use client"
+import { ClassI } from "@/interfaces/class.interface";
+import { CompanyI } from "@/interfaces/company.interface";
+import { EventI } from "@/interfaces/event.interface";
+import { InstructorI, InstructorTableI } from "@/interfaces/instructor.interface";
+import { StudentI } from "@/interfaces/student.interface";
 import React, { useContext, createContext, useState} from "react";
 
 type ContextType = {
-  schedules: any[],
-  setSchedules: React.Dispatch<React.SetStateAction<any[]>>,
-  instructors: any[],
-  setInstructors: React.Dispatch<React.SetStateAction<any[]>>,
-  scheduleDetail: any,
-  setScheduleDetail: React.Dispatch<React.SetStateAction<any>>,
-  profile: any,
-  setProfile: React.Dispatch<React.SetStateAction<any>>,
+  schedules: EventI[],
+  setSchedules: React.Dispatch<React.SetStateAction<EventI[]>>,
+  instructorsTable: InstructorTableI[],
+  setInstructorsTable: React.Dispatch<React.SetStateAction<InstructorTableI[]>>,
+  classItem: ClassI | undefined,
+  setClassItem: React.Dispatch<React.SetStateAction<ClassI | undefined>>,
+  profile: StudentI | CompanyI | InstructorI | undefined,
+  setProfile: React.Dispatch<React.SetStateAction<StudentI | CompanyI | InstructorI | undefined>>,
+  availabilities: EventI[],
+  setAvailabilities: React.Dispatch<React.SetStateAction<EventI[]>>,
+  company: CompanyI | undefined,
+  setCompany: React.Dispatch<React.SetStateAction<CompanyI | undefined>>,
+  classes: ClassI[],
+  setClasses: React.Dispatch<React.SetStateAction<ClassI[]>>,
 };
-
-type Event = {
-  event_id: string,
-  title: string,
-  start: Date,
-  end: Date,
-}
 
 const MyContext = createContext<ContextType | undefined>(undefined);
 
@@ -27,21 +30,30 @@ export interface ContextProps {
 };
 
 export function MainContext({ children }: ContextProps) {
-  const [schedules, setSchedules] = useState<Event[]>([]);
-  const [instructors, setInstructors] = useState<any[]>([]);
-  const [scheduleDetail, setScheduleDetail] = useState<any>(null);
-  const [profile, setProfile] = useState<ProfileI>();
+  const [schedules, setSchedules] = useState<EventI[]>([]);
+  const [instructorsTable, setInstructorsTable] = useState<InstructorTableI[]>([]);
+  const [classItem, setClassItem] = useState<ClassI | undefined>();
+  const [profile, setProfile] = useState<StudentI | CompanyI | InstructorI | undefined>();
+  const [availabilities, setAvailabilities] = useState<EventI[]>([]);
+  const [company, setCompany] = useState<CompanyI | undefined>();
+  const [classes, setClasses] = useState<ClassI[]>([]);
 
   return (
     <MyContext.Provider value={{
       schedules,
       setSchedules,
-      instructors,
-      setInstructors,
-      scheduleDetail,
-      setScheduleDetail,
+      instructorsTable,
+      setInstructorsTable,
+      classItem,
+      setClassItem,
       profile,
       setProfile,
+      availabilities,
+      setAvailabilities,
+      company,
+      setCompany,
+      classes,
+      setClasses,
     }}>
       {children}
     </MyContext.Provider>
@@ -52,7 +64,7 @@ export const useMyContext = () => {
   const context = useContext(MyContext);
 
   if (!context) {
-    throw new Error('useYourContext debe usarse dentro de un YourContextProvider');
+    throw new Error("useYourContext debe usarse dentro de un YourContextProvider");
   }
 
   return context;

@@ -1,34 +1,29 @@
-'use client'
-import theme from '@/theme/themeConfig'
-import { DeleteOutlined, EditOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, ConfigProvider, Input, InputRef, Space, Table } from 'antd'
-import Highlighter from 'react-highlight-words';
-import { useEffect, useRef, useState } from 'react';
-import { ColumnType, ColumnsType, FilterConfirmProps } from 'antd/es/table/interface';
-import AddInstructor from './AddInstructor';
-import { FindAllInstructors } from '@/services/Instructor';
-import { useMyContext } from '@/context/MainContext';
-import { getTokenCookie } from '@/utils/cookie.util';
-import UpdateInstructor from './UpdateInstructor';
-import DeleteInstructor from './DeleteInstructor';
-import Link from 'next/link';
+"use client"
+import theme from "@/theme/themeConfig";
+import { ClockCircleOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, ConfigProvider, Input, InputRef, Space, Table } from "antd";
+import Highlighter from "react-highlight-words";
+import { useEffect, useRef, useState } from "react";
+import { ColumnType, ColumnsType, FilterConfirmProps } from "antd/es/table/interface";
+import AddInstructor from "./AddInstructor";
+import { useMyContext } from "@/context/MainContext";
+import { getTokenCookie } from "@/utils/cookie.util";
+import UpdateInstructor from "./UpdateInstructor";
+import DeleteInstructor from "./DeleteInstructor";
+import Link from "next/link";
+import { MyProfile } from "@/services/Auth";
+import { FindOneCompany } from "@/services/Company";
+import NotFound from "./NotFound";
+import { InstructorTableI } from "@/interfaces/instructor.interface";
 
-interface DataType {
-  key: React.Key;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  address: string;
-  email: string;
-}
-
-type DataIndex = keyof DataType;
+type DataIndex = keyof InstructorTableI;
 
 export default function Instructors() {
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
-  const { instructors, setInstructors } = useMyContext();
+  const { instructorsTable, setInstructorsTable } = useMyContext();
+  const [error, setError] = useState<boolean | null>(null);
 
   const handleSearch = (
     selectedKeys: string[],
@@ -40,39 +35,35 @@ export default function Instructors() {
     setSearchedColumn(dataIndex);
   };
 
-  const handleReset = (clearFilters: () => void) => {
-    clearFilters();
-    setSearchText('');
-  };
-
   useEffect(() => {
-    try {
-      const instructors = async (token: string) => {
-        const data = await FindAllInstructors(token);
+    const fetchInstructors = async () => {
+      try {
+        const token = getTokenCookie();
 
-        setInstructors(data.map((item: any) => {
-          return {
-            key: item._id,
-            firstName: item.firstName,
-            lastName: item.lastName,
-            phone: item.phone,
-            email: item.user.email,
-            address: item.address,
-          }
-        }));
-      };
-
-      const token = getTokenCookie();
-
-      if(token) {
-        instructors(token);
+        if(token) {
+          const profile = await MyProfile(token);
+          const res = await FindOneCompany(token, profile._id);
+  
+          setInstructorsTable(res.instructors.map((item: any) => {
+            return {
+              key: item._id,
+              firstName: item.firstName,
+              lastName: item.lastName,
+              phone: item.phone,
+              email: item.user.email,
+              address: item.address,
+            }
+          }));
+        }
+      } catch (error) {
+        setError(true);
       }
-    } catch (error) {
-      
-    }
+    };
+
+    fetchInstructors();
   }, []);
 
-  const getColumnSearchProps = (dataIndex: DataIndex, name: string): ColumnType<DataType> => ({
+  const getColumnSearchProps = (dataIndex: DataIndex, name: string): ColumnType<InstructorTableI> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
@@ -81,7 +72,7 @@ export default function Instructors() {
           value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
-          style={{ marginBottom: 8, display: 'block' }}
+          style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
@@ -90,20 +81,14 @@ export default function Instructors() {
             icon={<SearchOutlined />}
             ghost
             size="small"
-            style={{ width: 90 }}
+            style={{ width: 100 }}
           >
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-          <Button
             type="link"
             size="small"
+            style={{ width: 110 }}
             onClick={() => {
               confirm({ closeDropdown: false });
               setSearchText((selectedKeys as string[])[0]);
@@ -116,7 +101,7 @@ export default function Instructors() {
       </div>
     ),
     filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? '#EFCB68' : undefined }} />
+      <SearchOutlined style={{ color: filtered ? "#EFCB68" : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]
@@ -131,63 +116,70 @@ export default function Instructors() {
     render: (text) =>
       searchedColumn === dataIndex ? (
         <Highlighter
-          highlightStyle={{ backgroundColor: '#EFCB68', padding: 0 }}
+          highlightStyle={{ backgroundColor: "#EFCB68", padding: 0 }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
         text
       ),
   });
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<InstructorTableI> = [
     {
-      title: 'First Name',
-      dataIndex: 'firstName',
-      key: 'firstName',
+      title: "First Name",
+      dataIndex: "firstName",
+      key: "firstName",
       ellipsis: true,
-      ...getColumnSearchProps('firstName', 'First Name'),
+      ...getColumnSearchProps("firstName", "First Name"),
     },
     {
-      title: 'Last Name',
-      dataIndex: 'lastName',
-      key: 'lastName',
+      title: "Last Name",
+      dataIndex: "lastName",
+      key: "lastName",
       ellipsis: true,
-      ...getColumnSearchProps('lastName', 'Last Name'),
+      ...getColumnSearchProps("lastName", "Last Name"),
     },
     {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
-      ellipsis: true,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
       ellipsis: true,
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
       ellipsis: true,
     },
     {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
       ellipsis: true,
-      fixed: 'right',
-      width: 150,
-      render: (_: any, record: DataType) => (
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      ellipsis: true,
+      fixed: "right",
+      width: 180,
+      render: (_: any, record: InstructorTableI) => (
         <Space size="middle">
           <Link href={`/instructor/${record.key}`}>
             <EyeOutlined />
           </Link>
+          <Link href={`/dashboard/admin/instructor/availability/${record.key}`}>
+            <ClockCircleOutlined />
+          </Link>
           <UpdateInstructor id={record.key.toString()} />
-          <DeleteInstructor id={record.key.toString()} firstName={record.firstName} lastName={record.lastName} />
+          <DeleteInstructor
+            id={record.key.toString()}
+            firstName={record.firstName}
+            lastName={record.lastName}
+          />
         </Space>
       ),
     },
@@ -195,10 +187,15 @@ export default function Instructors() {
 
   return (
     <ConfigProvider theme={theme}>
-      <AddInstructor />
-      <Table dataSource={instructors} columns={columns}>
-        
-      </Table>
+      {!error && (<>
+        <AddInstructor />
+        <Table dataSource={instructorsTable} columns={columns} />
+      </>)}
+      {error && (
+        <div className='h-fit w-full'>
+          <NotFound />
+        </div>
+      )}
     </ConfigProvider>
-  )
-}
+  );
+};

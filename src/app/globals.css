@@ -96,7 +96,6 @@ input::placeholder {
 }
 
 :where(.css-dev-only-do-not-override-15uh9l0).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
-  color: #FFF;
   border-color: #FFD639;
 }
 
@@ -115,4 +114,15 @@ input::placeholder {
   background: transparent !important;
   border-color: #efcb68;
   box-shadow: none;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-result .ant-result-title {
+  color: #efcb68;
+}
+
+:where(.css-dev-only-do-not-override-15uh9l0).ant-result .ant-result-subtitle {
+  color: #E1EFE6;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
 }

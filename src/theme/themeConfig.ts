@@ -17,7 +17,7 @@ const theme: ThemeConfig = {
     Timeline: {
       tailColor: '#EFCB68',
     }
-  }
+  },
 };
 
 export default theme;
