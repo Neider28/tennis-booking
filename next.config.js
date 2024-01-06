@@ -14,7 +14,7 @@ const nextConfig = {
   },
   env: {
     API_DEV: 'http://localhost:4000',
-    API_PROD: 'https://tennis-booking-backend.onrender.com/',
+    API_PROD: 'https://tennis-booking-backend.onrender.com',
   },
 };
 
