@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import theme from "@/theme/themeConfig";
 import { Button, ConfigProvider } from "antd";
 import Image from "next/image";
-import success from "../../../../public/images/success.png";
+import success from "../../../../../../public/images/success.png";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export default function Success() {
