@@ -41,32 +41,28 @@ export default function Login() {
     try {
       const res: TokenI = await SignInAuth(user);
 
-      setTimeout(() => {
-        if (res) {
-          const token = res.access_token;
-          const decoded = jwt.decode(token) as JwtPayload;
+      if (res) {
+        const token = res.access_token;
+        const decoded = jwt.decode(token) as JwtPayload;
 
-          setTokenCookie(token, 360);
+        setTokenCookie(token, 360);
 
-          if ('role' in decoded) {
-            const role = decoded.role;
+        if ('role' in decoded) {
+          const role = decoded.role;
 
-            if (role === 'company') {
-              router.push('/dashboard/admin');
-            } else {
-              router.push('/dashboard');
-            }
+          if (role === 'company') {
+            router.push('/dashboard/admin');
+          } else {
+            router.push('/dashboard');
           }
-        } else {
-          setLoad(false);
-          warning("Incorrect credentials. Verify your email and password and try again.");
         }
-      }, 2000);
-    } catch (error) {
-      setTimeout(() => {
+      } else {
         setLoad(false);
         warning("Incorrect credentials. Verify your email and password and try again.");
-      }, 2000);
+      }
+    } catch (error) {
+      setLoad(false);
+      warning("Incorrect credentials. Verify your email and password and try again.");
     }
   };
 
