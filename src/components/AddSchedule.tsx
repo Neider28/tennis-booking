@@ -6,7 +6,8 @@ import { MyProfile } from "@/services/Auth";
 import { FindOneCompany } from "@/services/Company";
 import { AvailabilityI } from "@/interfaces/availability.interface";
 import { useMyContext } from "@/context/MainContext";
-import { CompanyI } from "@/interfaces/company.interface";
+import { ClassI } from "@/interfaces/class.interface";
+import { ScheduleI } from "@/interfaces/schedule.interface";
 
 const { RangePicker } = DatePicker;
 
@@ -24,7 +25,7 @@ const filterOption = (input: string, option?: { label: string; value: string }) 
   (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
 export default function AddSchedule() {
-  const { setSchedules } = useMyContext();
+  const { setSchedules, schedules } = useMyContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [classes, setClasses] = useState<any[]>([]);
@@ -56,19 +57,15 @@ export default function AddSchedule() {
       const token = getTokenCookie();
 
       if (token) {
-        const res: CompanyI = await CreateSchedule(token, values.class, scheduleBody);
+        const res: ScheduleI = await CreateSchedule(token, values.class, scheduleBody);
 
         if (res) {
-          setSchedules(res.classes.flatMap((item1: any) => {
-            return item1.schedules.map((item2: any) => {
-              return {
-                event_id: item2._id,
-                title: item1.title,
-                start: new Date(item2.startDate),
-                end: new Date(item2.endDate),
-              };
-            });
-          }));
+          setSchedules([...schedules, {
+            event_id: res._id,
+            title: 'New',
+            start: new Date(res.startDate),
+            end: new Date(res.endDate),
+          }]);
 
           setIsModalOpen(false);
         }
@@ -86,10 +83,14 @@ export default function AddSchedule() {
         if(token) {
           const profile = await MyProfile(token);
           const res = await FindOneCompany(token, profile._id);
-          setClasses(res.classes.map((item: any) => {
-            return {
-              value: item._id,
-              label: item.title,
+          const classesGroup = res.classes.filter((item: ClassI) => item.classType === "group");
+          
+          setClasses(classesGroup.map((item: ClassI) => {
+            if (item.classType === "group") {
+              return {
+                value: item._id,
+                label: item.title,
+              }
             }
           }));
         }

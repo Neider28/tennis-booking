@@ -10,6 +10,7 @@ import AddClass from "./AddClass";
 import NotFound from "./NotFound";
 import { CompanyI } from "@/interfaces/company.interface";
 import { useMyContext } from "@/context/MainContext";
+import { ClassI } from "@/interfaces/class.interface";
 
 export default function Classes() {
   const { company, setCompany, classes, setClasses } = useMyContext();
@@ -39,7 +40,7 @@ export default function Classes() {
       {company && (<>
         <AddClass />
         <div className="flex flex-col gap-y-8 sm:flex-row sm:gap-8">
-          {classes.map((item: any) => (
+          {classes.map((item: ClassI) => (
             <Link key={item._id} href={`/dashboard/admin/class-detail/${item._id}`}>
               <Card
                 title={item.title}

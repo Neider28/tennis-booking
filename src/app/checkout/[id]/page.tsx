@@ -1,5 +1,5 @@
 "use client"
-import { CreatePayment } from "@/services/Payment";
+import { CreatePayment, CreatePaymentStripe, FindOnePayment } from "@/services/Payment";
 import theme from "@/theme/themeConfig";
 import { Elements } from "@stripe/react-stripe-js";
 import {loadStripe} from "@stripe/stripe-js";
@@ -11,14 +11,15 @@ import IsNotAuth from "@/middlewares/isNotAuth.middleware";
 import IsUser from "@/middlewares/isUser.middleware";
 import CheckoutForm from "@/components/CheckoutForm";
 import { getTokenCookie } from "@/utils/cookie.util";
-import { FindOneSchedule } from "@/services/Schedule";
+import { FindOneClass } from "@/services/Schedule";
 import NotAuthorized from "@/components/NotAuthorized";
+import { PaymentI } from "@/interfaces/payment.interface";
 
 const stripePromise = loadStripe("pk_test_51ONIDRHesGCdAhAs9vmKF3njWrCwe91SAIhX2We9cSDvxn2NGvQ0VDXRy5whbbtEMq9HKEMeYkPvecISWlDcrQnu00SMIIWRLr");
 
 export default function Checkout({ params }: { params: { id: string } }) {
   const [clientSecret, setClientSecret] = useState("");
-  const [schedule,  setSchedule] = useState<any>(null);
+  const [schedule,  setSchedule] = useState<PaymentI | undefined>();
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -27,9 +28,9 @@ export default function Checkout({ params }: { params: { id: string } }) {
         const token = getTokenCookie();
 
         if(token) {
-          const res = await FindOneSchedule(token, params.id);
-          const payment = await CreatePayment({
-            amount: 50,
+          const res = await FindOnePayment(token, params.id);
+          const payment = await CreatePaymentStripe(token, {
+            amount: res.cost,
             currency: "USD",
           });
 
@@ -60,7 +61,7 @@ export default function Checkout({ params }: { params: { id: string } }) {
                   }}
                 >
                   <h2 className="text-3xl text-naples-yellow font-semibold mb-4">
-                    {schedule.title}
+                    {schedule.class.title}
                   </h2>
                   <p className="mb-4 text-2xl text-honeydew font-semibold">
                     ${schedule.cost}
@@ -73,11 +74,11 @@ export default function Checkout({ params }: { params: { id: string } }) {
                     }}
                     items={[
                       {
-                        children: new Date(schedule.startDate).toLocaleDateString("en-US", {
+                        children: new Date(schedule.schedule.startDate).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
-                        }) + " " + new Date(schedule.startDate).toLocaleTimeString("en-US", {
+                        }) + " " + new Date(schedule.schedule.startDate).toLocaleTimeString("en-US", {
                           hour: "numeric",
                           minute: "numeric",
                           second: "numeric",
@@ -85,11 +86,11 @@ export default function Checkout({ params }: { params: { id: string } }) {
                         }),
                       },
                       {
-                        children: new Date(schedule.endDate).toLocaleDateString("en-US", {
+                        children: new Date(schedule.schedule.endDate).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
-                        }) + " " + new Date(schedule.endDate).toLocaleTimeString("en-US", {
+                        }) + " " + new Date(schedule.schedule.endDate).toLocaleTimeString("en-US", {
                           hour: "numeric",
                           minute: "numeric",
                           second: "numeric",
@@ -126,7 +127,7 @@ export default function Checkout({ params }: { params: { id: string } }) {
                           priority
                         />
                       </div>
-                      <CheckoutForm />
+                      <CheckoutForm id={params.id} />
                     </Elements>
                   )}
                 </Card>

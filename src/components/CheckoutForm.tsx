@@ -2,7 +2,7 @@ import React, {FormEvent, useState} from "react";
 import {useStripe, useElements, PaymentElement} from "@stripe/react-stripe-js";
 import { Button } from "antd";
 
-export default function CheckoutForm() {
+export default function CheckoutForm({ id }: { id: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<any>(null);
@@ -17,16 +17,14 @@ export default function CheckoutForm() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "https://example.com/order/123/complete",
+        return_url: `${process.env.API_PROD}/checkout/success/${id}`,
       },
     });
 
     if (error) {
       setErrorMessage(error.message);
     } else {
-      // Your customer will be redirected to your `return_url`. For some payment
-      // methods like iDEAL, your customer will be redirected to an intermediate
-      // site first to authorize the payment, then redirected to the `return_url`.
+      
     }
   };
 

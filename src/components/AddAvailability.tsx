@@ -5,6 +5,7 @@ import { AddAvailabilityToInstructor } from "@/services/Instructor";
 import { AvailabilityI } from "@/interfaces/availability.interface";
 import { InstructorI } from "@/interfaces/instructor.interface";
 import { useMyContext } from "@/context/MainContext";
+import { EventI } from "@/interfaces/event.interface";
 
 const { RangePicker } = DatePicker;
 
@@ -20,14 +21,14 @@ const rangeConfig = {
 
 export default function AddAvailability({ id } : { id: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { setAvailabilities } = useMyContext();
+  const { availabilities, setAvailabilities } = useMyContext();
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
-  const warning = () => {
+  const warning = (message: string) => {
     messageApi.open({
       type: "warning",
-      content: "Internal error.",
+      content: message,
     });
   };
 
@@ -40,6 +41,16 @@ export default function AddAvailability({ id } : { id: string }) {
     form.resetFields();
   };
 
+  const isEventWithinAvailableTime = (newEvent: AvailabilityI): boolean => {
+    const isOverlap = availabilities.some(event => {
+      return (
+        (new Date(newEvent.startDate) < event.end && new Date(newEvent.endDate) > event.start)
+      );
+    });
+  
+    return isOverlap;
+  };
+
   const onCreate = async (values: any) => {
     const availability: AvailabilityI = {
       startDate: new Date(values.fullDate[0].$d).setSeconds(0, 0),
@@ -50,22 +61,26 @@ export default function AddAvailability({ id } : { id: string }) {
       const token = getTokenCookie();
 
       if (token) {
-        const res: InstructorI = await AddAvailabilityToInstructor(token, id, availability);
+        if (isEventWithinAvailableTime(availability)) {
+          warning("Availability overlaps.");
+        } else {
+          const res: InstructorI = await AddAvailabilityToInstructor(token, id, availability);
 
-        if (res) {
-          setAvailabilities(res.availability.map((item: any) => {
-            return {
-              event_id: item._id,
-              title: `${res.firstName} ${res.lastName}`,
-              start: new Date(item.startDate),
-              end: new Date(item.endDate),
-            }
-          }));
-          setIsModalOpen(false);
+          if (res) {
+            setAvailabilities(res.availability.map((item: any) => {
+              return {
+                event_id: item._id,
+                title: `${res.firstName} ${res.lastName}`,
+                start: new Date(item.startDate),
+                end: new Date(item.endDate),
+              }
+            }));
+            setIsModalOpen(false);
+          }
         }
       }      
     } catch (error) {
-      warning();
+      warning("Internal error.");
     }
   };
 

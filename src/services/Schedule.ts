@@ -3,7 +3,7 @@ import { ClassI, CreateClassI, UpdateClassI } from "@/interfaces/class.interface
 import { CompanyI } from "@/interfaces/company.interface";
 import { ScheduleI } from "@/interfaces/schedule.interface";
 
-export const CreateSchedule = async (token: string, id: string, schedule: AvailabilityI): Promise<CompanyI> => {
+export const CreateSchedule = async (token: string, id: string, schedule: AvailabilityI): Promise<ScheduleI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/schedule/class/${id}`, {
       method: 'POST',
