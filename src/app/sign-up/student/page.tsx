@@ -19,6 +19,7 @@ export default function SignUp() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [blockFields, setBlockFields] = useState(false);
 
   const warning = (message: string) => {
     messageApi.open({
@@ -31,6 +32,7 @@ export default function SignUp() {
     e.preventDefault();
 
     setLoad(true);
+    setBlockFields(true);
 
     const user: SignUpStudentI = {
       firstName,
@@ -47,14 +49,16 @@ export default function SignUp() {
       if (res) {
         router.push(`/verify-email/${res.user.email}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoad(false);
-      warning("Internal error, try again.");
+      setBlockFields(false);
+      warning(error.message);
     }
   };
 
   useEffect(() => {
     document.title = "Sign Up | Student";
+    setBlockFields(false);
   }, []);
 
   return (
@@ -77,6 +81,7 @@ export default function SignUp() {
                 id="firstName"
                 placeholder="First Name"
                 value={firstName}
+                disabled={blockFields}
                 onChange={(e) => setFirstName(e.target.value)}
               />
               <input
@@ -86,6 +91,7 @@ export default function SignUp() {
                 id="lastName"
                 placeholder="Last Name"
                 value={lastName}
+                disabled={blockFields}
                 onChange={(e) => setLastName(e.target.value)}
               />
               <input
@@ -95,6 +101,7 @@ export default function SignUp() {
                 id="email"
                 placeholder="Email"
                 value={email}
+                disabled={blockFields}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
@@ -104,6 +111,7 @@ export default function SignUp() {
                 id="password"
                 placeholder="Password"
                 value={password}
+                disabled={blockFields}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Button
@@ -112,6 +120,7 @@ export default function SignUp() {
                 htmlType="submit"
                 size="large"
                 loading={load}
+                disabled={(firstName === "" || lastName === "" || email === "" || password === "") ? true : false}
               >
                 Sign Up
               </Button>

@@ -15,7 +15,11 @@ export const SignUpStudent = async (student: SignUpStudentI): Promise<StudentI> 
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch data');
+      const errorRes = await response.text();
+      const message = await JSON.parse(errorRes).error.message;
+      console.log(message);
+
+      throw new Error(`${message}`);
     }
 
     return response.json();
@@ -35,7 +39,11 @@ export const SignUpCompany = async (company: SignUpCompanyI): Promise<CompanyI> 
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch data');
+      const errorRes = await response.text();
+      const message = await JSON.parse(errorRes).error.message;
+      console.log(message);
+
+      throw new Error(`${message}`);
     }
 
     return response.json();
@@ -108,6 +116,46 @@ export const VerifyUser = async (token: string): Promise<TokenI> => {
   try {
     const response = await fetch(`${process.env.API_PROD}/auth/verify/${token}`, {
       method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const ResetPasswordUser = async (body: any): Promise<boolean> => {
+  try {
+    const response = await fetch(`${process.env.API_PROD}/auth/reset-password/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch data');
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const ResetPasswordConfirmUser = async (token: string, body: any): Promise<boolean> => {
+  try {
+    const response = await fetch(`${process.env.API_PROD}/auth/reset-password/confirm/${token}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {

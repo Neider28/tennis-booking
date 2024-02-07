@@ -17,6 +17,7 @@ import { TokenI } from "@/interfaces/token.interface";
 export default function Login() {
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
+  const [blockFields, setBlockFields] = useState(false);
   const [load, setLoad] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,6 +33,7 @@ export default function Login() {
     e.preventDefault();
 
     setLoad(true);
+    setBlockFields(true);
 
     const user: SignInUserI = {
       email,
@@ -58,16 +60,19 @@ export default function Login() {
         }
       } else {
         setLoad(false);
+        setBlockFields(false);
         warning("Incorrect credentials. Verify your email and password and try again.");
       }
     } catch (error) {
       setLoad(false);
+      setBlockFields(false);
       warning("Incorrect credentials. Verify your email and password and try again.");
     }
   };
 
   useEffect(() => {
     document.title = "Login";
+    setBlockFields(false);
   }, []);
 
   return (
@@ -87,6 +92,7 @@ export default function Login() {
                 id="email"
                 placeholder="Email"
                 value={email}
+                disabled={blockFields}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
@@ -96,6 +102,7 @@ export default function Login() {
                 id="password"
                 placeholder="Password"
                 value={password}
+                disabled={blockFields}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Button
@@ -104,6 +111,7 @@ export default function Login() {
                 htmlType="submit"
                 size="large"
                 loading={load}
+                disabled={(email === "" || password === "") ? true : false}
               >
                 Login
               </Button>
@@ -133,6 +141,7 @@ export default function Login() {
                 warning("Unregistered user");
               }}
             />
+            <Link href="/reset-password" className="my-4 text-naples-yellow">Forgot Password?</Link>
           </div>
         </main>
       </ConfigProvider>

@@ -1,23 +1,20 @@
 "use client"
 import { FormEvent, useEffect, useState } from "react";
-import { SignUpCompany } from "@/services/Auth";
+import IsAuth from "@/middlewares/isAuth.middleware";
 import logo from "../../../../public/logo.png";
 import theme from "@/theme/themeConfig";
 import { Button, ConfigProvider, message } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import IsAuth from "@/middlewares/isAuth.middleware";
-import { CompanyI, SignUpCompanyI } from "@/interfaces/company.interface";
+import { ResetPasswordConfirmUser } from "@/services/Auth";
 
-export default function SignUp() {
+export default function ResetPasswordConfirm({ params } : { params: { token: string } }) {
   const router = useRouter();
   const [messageApi, contextHolder] = message.useMessage();
   const [load, setLoad] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [blockFields, setBlockFields] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const warning = (message: string) => {
     messageApi.open({
@@ -30,32 +27,33 @@ export default function SignUp() {
     e.preventDefault();
 
     setLoad(true);
-    setBlockFields(true);
 
-    const company: SignUpCompanyI = {
-      name,
-      user: {
-        email,
-        password,
-      },
+    const body = {
+      password,
     };
 
     try {
-      const res: CompanyI = await SignUpCompany(company);
+      if (password === confirmPassword) {
+        const res: boolean = await ResetPasswordConfirmUser(params.token, body);
 
-      if (res) {
-        router.push(`/verify-email/${res.user.email}`);
+        if (res) {
+          router.push('/login');
+        } else {
+          setLoad(false);
+          warning("Internal error.");
+        }
+      } else {
+        setLoad(false);
+        warning("Sorry, the passwords provided do not match.");
       }
-    } catch (error: any) {
+    } catch (error) {
       setLoad(false);
-      setBlockFields(false);
-      warning(error.message);
+      warning("Internal error.");
     }
   };
 
   useEffect(() => {
-    document.title = "Sign Up | Company";
-    setBlockFields(false);
+    document.title = "Reset Password";
   }, []);
 
   return (
@@ -67,39 +65,24 @@ export default function SignUp() {
             <Link href="/">
               <Image src={logo} alt="Logo" width={175} height={175} priority />
             </Link>
-            <form
-              onSubmit={handleSubmit}
-              className="w-full flex flex-col justify-center items-center"
-            >
-              <input
-                className="w-full h-10 px-2 mb-4 bg-transparent text-sm text-honeydew rounded-lg border border-solid border-naples-yellow"
-                type="text"
-                name="name"
-                id="name"
-                placeholder="Company Name"
-                value={name}
-                disabled={blockFields}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <input
-                className="w-full h-10 px-2 mb-4 bg-transparent text-sm text-honeydew rounded-lg border border-solid border-naples-yellow"
-                type="email"
-                name="email"
-                id="email"
-                placeholder="Email"
-                value={email}
-                disabled={blockFields}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+            <form onSubmit={handleSubmit} className="w-full flex flex-col justify-center items-center">
               <input
                 className="w-full h-10 px-2 mb-6 bg-transparent text-sm text-honeydew rounded-lg border border-solid border-naples-yellow"
                 type="password"
                 name="password"
                 id="password"
-                placeholder="Password"
+                placeholder="New Password"
                 value={password}
-                disabled={blockFields}
                 onChange={(e) => setPassword(e.target.value)}
+              />
+              <input
+                className="w-full h-10 px-2 mb-6 bg-transparent text-sm text-honeydew rounded-lg border border-solid border-naples-yellow"
+                type="password"
+                name="confirm-password"
+                id="confirmPassword"
+                placeholder="Confirm New Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <Button
                 className="w-full bg-naples-yellow"
@@ -107,9 +90,8 @@ export default function SignUp() {
                 htmlType="submit"
                 size="large"
                 loading={load}
-                disabled={(name === "" || email === "" || password === "") ? true : false}
               >
-                Sign Up
+                Save Password
               </Button>
             </form>
           </div>
